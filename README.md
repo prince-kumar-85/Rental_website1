@@ -1,5 +1,5 @@
 # short-rod-3165
-Solo Project (Quikr Clone)
+Group Project (Quikr Clone)
 ## Features
 
 <b>Featured Products</b>
