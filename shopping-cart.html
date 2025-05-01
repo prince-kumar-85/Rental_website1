@@ -403,18 +403,17 @@
    <div id="cart-container">
      <!-- Here Append All the cart Products  -->
    </div>
-    <div id="top">
-      <h1 id="h1">Shopping Bag</h1>
-      <marquee behavior="" direction="right">Re-Furbay</marquee>
-      <div id="total1">
-        <h1>Total products :- <span id="item">0</span></h1>
-        <h1 id="total"> Total cart Price:- ₹ <span id="cart-total">0</span></h1>
-        <button id="coupne">Apply Coupon</button>
-        <a href="address.html" style="text-decoration: none;"><button id="buy">Place Order</button></a>
-
-      </div>
-    
-   </div>
+   <div id="top">
+    <h1 id="h1">Shopping Bag</h1>
+    <marquee behavior="" direction="right">Re-Furbay</marquee>
+    <div id="total1">
+      <h1>Total products :- <span id="item">0</span></h1>
+      <h1 id="total"> Total cart Price:- ₹ <span id="cart-total">0</span></h1>
+      <button id="coupne">Apply Coupon</button>
+      <button id="authenticate">Authenticate with Aadhaar</button> <!-- Added authentication button -->
+      <a href="address.html" style="text-decoration: none;"><button id="buy" disabled>Place Order</button></a>
+    </div>
+  </div>
 
    </div>
     
@@ -859,13 +858,61 @@
   
     let to=document.getElementById("item")
     to.innerText=cardata.length;
-    document.getElementById("buy").addEventListener("click",()=>{
-      // let order
-      localStorage.setItem("order",JSON.stringify( cardata))
-      window.location.pathname="address.html"
+    document.getElementById("authenticate").addEventListener("click", () => {
+    // Trigger Aadhaar Authentication flow
+    triggerAadhaarAuthentication();
+});
 
-      localStorage.removeItem("cart")
-    })
+function triggerAadhaarAuthentication() {
+    const aadhaarNumber = prompt("Enter your Aadhaar Number:");
+
+    if (!aadhaarNumber || !isValidAadhaar(aadhaarNumber)) {
+        alert("Invalid Aadhaar number. Please enter a 12-digit number starting from 2–9.");
+        return;
+    }
+
+    const otp = prompt("Enter OTP sent to your Aadhaar-linked phone number:");
+
+    authenticateAadhaar(aadhaarNumber, otp)
+        .then(response => {
+            if (response.success) {
+                document.getElementById("buy").disabled = false;
+                alert("Aadhaar Authentication Successful!");
+            } else {
+                alert("Authentication failed. Please try again.");
+            }
+        })
+        .catch(error => {
+            alert("An error occurred. Please try again.");
+        });
+}
+
+// Aadhaar format validator (12 digits, starting from 2 to 9)
+function isValidAadhaar(aadhaarNumber) {
+    const aadhaarRegex = /^[2-9]{1}[0-9]{11}$/;
+    return aadhaarRegex.test(aadhaarNumber);
+}
+
+// Simulated backend call for Aadhaar authentication
+function authenticateAadhaar(aadhaarNumber, otp) {
+    return new Promise((resolve, reject) => {
+        // Accept any valid Aadhaar, and a fixed OTP ("123456")
+        if (isValidAadhaar(aadhaarNumber) && otp === "123456") {
+            resolve({ success: true });
+        } else {
+            resolve({ success: false });
+        }
+    });
+}
+
+
+// Event listener for the "Place Order" button
+document.getElementById("buy").addEventListener("click", () => {
+    // Store order data and redirect to address page after successful Aadhaar auth
+    localStorage.setItem("order", JSON.stringify(cardata));
+    window.location.pathname = "address.html";
+    localStorage.removeItem("cart");
+});
     let coupon=document.getElementById("coupne");
     let n=1
     coupon.addEventListener("click",()=>{
